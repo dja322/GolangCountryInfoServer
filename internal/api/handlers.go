@@ -13,7 +13,7 @@ import (
  * For general use
  * User will pass a country and the list of info they want
  */
-func Root_Handler(w http.ResponseWriter, r *http.Request) {
+func API_Handler(w http.ResponseWriter, r *http.Request) {
 
 	//sets initial write
 	w.Header().Set("Content-Type", "text/plain")

@@ -55,6 +55,6 @@ func main() {
  */
 func setHandlers() {
 
-	http.HandleFunc("/", api.Root_Handler)
+	http.HandleFunc("/api/", api.API_Handler)
 	http.HandleFunc("/admin", api.Admin_Handler)
 }

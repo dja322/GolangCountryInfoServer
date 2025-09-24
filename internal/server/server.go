@@ -17,7 +17,14 @@ func GetCountryData(country string, specs ...string) datatypes.CountryDataType {
 	//TODO: Access database and get data for specific country
 	//TODO: call database functions to get data
 
-	return datatypes.CountryDataType{}
+	return datatypes.CountryDataType{
+		GDP:           100000,
+		Population:    1000000,
+		CapitolCity:   "Test City",
+		Continent:     "Test Continent",
+		SizeInSqMiles: 10000,
+		Country:       country,
+	}
 }
 
 func GetUserData() string {

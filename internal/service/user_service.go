@@ -55,7 +55,7 @@ func ParseRequest(r *http.Request, userInfo datatypes.AuthResult) datatypes.Resp
 func validCountry(country string) bool {
 	if country == "y" {
 		print("yes")
-		return true
+		return false
 	}
-	return false
+	return true
 }
