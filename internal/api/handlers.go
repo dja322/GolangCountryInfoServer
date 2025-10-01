@@ -13,9 +13,9 @@ import (
  * For general use
  * User will pass a country and the list of info they want
  */
-func API_Handler(w http.ResponseWriter, r *http.Request) {
+func API_Base_Handler(w http.ResponseWriter, r *http.Request) {
 
-	//sets initial write
+	//sets initial w rite
 	w.Header().Set("Content-Type", "text/plain")
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusBadRequest)
