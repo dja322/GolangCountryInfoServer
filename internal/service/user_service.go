@@ -41,17 +41,6 @@ func ParseRequest(r *http.Request, userInfo datatypes.AuthResult) datatypes.Resp
 	}
 }
 
-// keys := make([]string, 0, len(query))
-// for k := range query {
-// 	keys = append(keys, k)
-// }
-
-// for key, values := range query {
-// 	for _, value := range values {
-// 		fmt.Print(w, "Key: %s, Value: %s\n", key, value)
-// 	}
-// }
-
 func validCountry(country string) bool {
 	if country == "y" {
 		print("yes")

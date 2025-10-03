@@ -14,6 +14,7 @@ Implement authetication, low priority do after base api and database functionali
 */
 
 import (
+	"GolangCountryInfoServer/database"
 	"GolangCountryInfoServer/internal/api"
 	"fmt"
 	"log"
@@ -21,12 +22,24 @@ import (
 	"os"
 )
 
-const logFile string = "../Logfile.log"
+const logFileStr string = "../Logfile_server.log"
+const initDatabase bool = false
 
 func main() {
+	//initialize database if set
+	if initDatabase {
+		err := database.InitializeDatabase()
+		if err != nil {
+			log.Fatalf("error initializing database: %v", err)
+		}
+		log.Println("Successfully initialzed database")
+	}
+
+	//began setting up server
 	fmt.Println("Starting Server...")
 
-	logFile, logErr := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	//set up server logfile
+	logFile, logErr := os.OpenFile(logFileStr, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if logErr != nil {
 		log.Fatalf("error opening file: %v", logErr)
 	}

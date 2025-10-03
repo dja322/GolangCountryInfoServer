@@ -20,3 +20,11 @@ type CountryDataType struct {
 	SizeInSqMiles int
 	Country       string
 }
+
+type DBConfig struct {
+	Server   string
+	Port     string
+	User     string
+	Password string
+	Database string
+}
