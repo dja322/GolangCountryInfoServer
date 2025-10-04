@@ -6,22 +6,50 @@ package databaseconn
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
+	"os"
+
+	"github.com/go-sql-driver/mysql"
 )
 
-var db *sql.DB //Database connection bool
+type DBConfig struct {
+	Server   string
+	Port     string
+	User     string
+	Password string
+	Database string
+}
 
-var dataDrive string = "mysql"
-var dataSoruce string = "admin:admin@tcp(127.0.0.1:3306)/"
+var db *sql.DB //Database connection bool
 
 func ConnectToDatabase() {
 	var err error
 
-	db, err = sql.Open(dataDrive, dataSoruce)
+	var config DBConfig // = getENV(envFilePath) Stub implement connection here soon
+
+	cfg := mysql.NewConfig()
+	cfg.User = config.User
+	cfg.Passwd = config.Password
+	cfg.Net = "tcp"
+	cfg.Addr = "127.0.0.1:3306"
+	cfg.DBName = config.Database
+
+	var dataDrive string = "mysql"
+	var dataSource string = fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
+
+	db, err = sql.Open(dataDrive, dataSource)
 	if err != nil {
-		log.Fatal("Failed to connect to database")
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	defer db.Close()
+
+	// Test the connection
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("Error connecting to the database: %v", err)
+	}
 }
 
 func SelectFromDatabase(country string) (string, error) {

@@ -23,7 +23,7 @@ import (
 )
 
 const logFileStr string = "../Logfile_server.log"
-const initDatabase bool = false
+const initDatabase bool = true
 
 func main() {
 	//initialize database if set
