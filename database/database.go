@@ -42,7 +42,7 @@ func InitializeDatabase() error {
 	//get environment variables from selected path
 	var config DBConfig = getENV(envFilePath)
 
-	cfg := mysql.NewConfig()
+	var cfg *mysql.Config = mysql.NewConfig()
 	cfg.User = config.User
 	cfg.Passwd = config.Password
 	cfg.Net = "tcp"
@@ -68,17 +68,62 @@ func InitializeDatabase() error {
 	defer db.Close()
 
 	//execute command on database
-	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS " + config.Database)
+	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS " + config.Database + ";")
 	if err != nil {
-		log.Fatal("Error creating database\n")
+		log.Fatalf("Error creating database: %v", err)
 	}
 
-	_, err = db.Exec("USE " + config.Database)
+	var command string = "USE " + config.Database + ";"
+	_, err = db.Exec(command)
 	if err != nil {
-		log.Fatal("Error using database\n")
+		log.Fatalf("Error Using the database: %v", err)
 	}
 
 	//TODO: Set up tables for database
+	command = `CREATE TABLE IF NOT EXISTS Country (
+	id INT not NULL,
+	name VARCHAR(255) PRIMARY KEY not NULL,
+	gpd INT,
+	population INT,
+	capitolcity VARCHAR(255),
+	sizeinsqmiles INT
+);`
+
+	_, err = db.Exec(command)
+	if err != nil {
+		log.Fatalf("Error creating Country table %v\n", err)
+	}
+
+	//TODO: Set up tables for database
+	command = `CREATE TABLE IF NOT EXISTS User (
+	id INT PRIMARY KEY not NULL,
+	tokenlimit INT not NULL,
+	tokenused INT not NULL,
+	apikey VARCHAR(255) not NULL,
+	lastapiid INT,
+	lastcall DATE,
+	email VARCHAR(255)
+);`
+
+	_, err = db.Exec(command)
+	if err != nil {
+		log.Fatalf("Error creating User table %v\n", err)
+	}
+
+	//TODO: Set up tables for database
+	command = `CREATE TABLE IF NOT EXISTS Admin (
+	id INT PRIMARY KEY not NULL,
+	password VARCHAR(255),
+	passkey INT,
+	email VARCHAR(255)
+);`
+
+	_, err = db.Exec(command)
+	if err != nil {
+		log.Fatalf("Error creating Admin table %v\n", err)
+	}
+
+	log.Println("Successfully initialized database")
 
 	return nil
 }
