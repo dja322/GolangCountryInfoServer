@@ -1,8 +1,14 @@
 package database
 
+/*
+	Access database and get data
+*/
+
 import (
+	"GolangCountryInfoServer/internal/datatypes"
 	"bufio"
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -10,37 +16,13 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-type DBConfig struct {
-	Server   string
-	Port     string
-	User     string
-	Password string
-	Database string
-}
+var db *sql.DB //Database connection bool
+var envFilePath string = "../.env"
 
-/*
-TODO: This file should initialize and manage the database as separate from
-server functions but in same repo for development
-*/
-
-const logFileStr string = "../Logfile_database.log"
-const envFilePath = "../.env"
-
-func InitializeDatabase() error {
-	var db *sql.DB //Database connection bool
+func ConnectToDatabase() {
 	var err error
 
-	//set log file
-	logFile, logErr := os.OpenFile(logFileStr, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if logErr != nil {
-		log.Fatalf("error opening file: %v", logErr)
-	}
-	defer logFile.Close()
-
-	log.SetOutput(logFile)
-
-	//get environment variables from selected path
-	var config DBConfig = getENV(envFilePath)
+	var config datatypes.DBConfig = getENV(envFilePath) //Stub implement connection here soon
 
 	var cfg *mysql.Config = mysql.NewConfig()
 	cfg.User = config.User
@@ -50,9 +32,73 @@ func InitializeDatabase() error {
 	cfg.DBName = config.Database
 
 	var dataDrive string = "mysql"
+	var dataSource string = fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
+
+	db, err = sql.Open(dataDrive, dataSource)
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer db.Close()
+
+	// Test the connection
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("Error connecting to the database: %v", err)
+	}
+}
+
+func SelectFromDatabase(country string) (string, error) {
+
+	var result string = ""
+	var countryName string = "USA"
+	//Queries
+	//use db.Query for multiple rows
+	err := db.QueryRow("Select * FROM country WHERE name=%s", countryName).Scan(&result)
+
+	if err != nil {
+		return "", err
+	}
+
+	log.Printf("Queryed %s, DATA: %s\n", country, result)
+
+	return result, nil
+}
+
+func AddUser() {
+
+}
+
+func AdminAddCountry() {
+
+}
+
+func AdminRemoveUser() {
+
+}
+
+func AdminAddAdmin() {
+
+}
+
+func InitializeDatabase() error {
+	var db *sql.DB //Database connection bool
+	var err error
+
+	//get environment variables from selected path
+	var config datatypes.DBConfig = getENV(envFilePath)
+
+	var cfg *mysql.Config = mysql.NewConfig()
+	cfg.User = config.User
+	cfg.Passwd = config.Password
+	cfg.Net = "tcp"
+	cfg.Addr = "127.0.0.1:3306"
+	// cfg.DBName = config.Database
+
+	var dataDrive string = "mysql"
 
 	log.Println("Initializing database")
-	log.Println(cfg.FormatDSN())
+	// log.Println(cfg.FormatDSN()) //for credentials debug
 
 	db, err = sql.Open(dataDrive, cfg.FormatDSN())
 	if err != nil {
@@ -128,8 +174,8 @@ func InitializeDatabase() error {
 	return nil
 }
 
-func getENV(filepath string) DBConfig {
-	var config DBConfig
+func getENV(filepath string) datatypes.DBConfig {
+	var config datatypes.DBConfig
 
 	//get environment file
 	file, err := os.Open(filepath)

@@ -14,8 +14,8 @@ Implement authetication, low priority do after base api and database functionali
 */
 
 import (
-	"GolangCountryInfoServer/database"
 	"GolangCountryInfoServer/internal/api"
+	"GolangCountryInfoServer/internal/database"
 	"fmt"
 	"log"
 	"net/http"
@@ -26,6 +26,17 @@ const logFileStr string = "../Logfile_server.log"
 const initDatabase bool = true
 
 func main() {
+	logFile, logErr := os.OpenFile(logFileStr, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if logErr != nil {
+		log.Fatalf("error opening file: %v", logErr)
+	}
+	defer logFile.Close()
+
+	//sets global output log file for whole project
+	log.SetOutput(logFile)
+
+	log.Println("Log file Created")
+
 	//initialize database if set
 	if initDatabase {
 		err := database.InitializeDatabase()
@@ -39,16 +50,6 @@ func main() {
 	fmt.Println("Starting Server...")
 
 	//set up server logfile
-	logFile, logErr := os.OpenFile(logFileStr, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if logErr != nil {
-		log.Fatalf("error opening file: %v", logErr)
-	}
-	defer logFile.Close()
-
-	//sets global output log file for whole project
-	log.SetOutput(logFile)
-
-	log.Println("Log file Created")
 
 	setHandlers() //sets the handlers for different endpoints
 

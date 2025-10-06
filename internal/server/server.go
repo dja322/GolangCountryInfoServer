@@ -1,7 +1,7 @@
 package server
 
 import (
-	DB_conn "GolangCountryInfoServer/internal/databaseconn"
+	"GolangCountryInfoServer/internal/database"
 	"GolangCountryInfoServer/internal/datatypes"
 	"log"
 )
@@ -21,7 +21,7 @@ func GetCountryData(country string, specs ...string) datatypes.CountryDataType {
 	//TODO: Access database and get data for specific country
 	//TODO: call database functions to get data
 
-	result, err := DB_conn.SelectFromDatabase(country)
+	result, err := database.SelectFromDatabase(country)
 
 	if err != nil {
 
