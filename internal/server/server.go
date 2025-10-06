@@ -24,7 +24,7 @@ func GetCountryData(country string, specs ...string) datatypes.CountryDataType {
 	result, err := database.SelectFromDatabase(country)
 
 	if err != nil {
-
+		log.Printf("Error Selecting data: %v\n", err)
 	}
 
 	log.Println(result)

@@ -8,7 +8,6 @@ import (
 	"GolangCountryInfoServer/internal/datatypes"
 	"bufio"
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -16,13 +15,18 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-var db *sql.DB //Database connection bool
+var db *sql.DB = nil //Database connection bool
 var envFilePath string = "../.env"
 
 func ConnectToDatabase() {
+	if db != nil {
+		return
+	}
+
 	var err error
 
-	var config datatypes.DBConfig = getENV(envFilePath) //Stub implement connection here soon
+	//get environment variables from selected path
+	var config datatypes.DBConfig = getENV(envFilePath)
 
 	var cfg *mysql.Config = mysql.NewConfig()
 	cfg.User = config.User
@@ -32,14 +36,14 @@ func ConnectToDatabase() {
 	cfg.DBName = config.Database
 
 	var dataDrive string = "mysql"
-	var dataSource string = fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
-		os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
 
-	db, err = sql.Open(dataDrive, dataSource)
+	log.Println("Initializing database")
+	// log.Println(cfg.FormatDSN()) //for credentials debug
+
+	db, err = sql.Open(dataDrive, cfg.FormatDSN())
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		log.Fatal("Error connecting to mysql\n")
 	}
-	defer db.Close()
 
 	// Test the connection
 	err = db.Ping()
@@ -48,37 +52,26 @@ func ConnectToDatabase() {
 	}
 }
 
-func SelectFromDatabase(country string) (string, error) {
+func SelectFromDatabase(country string) (datatypes.CountryDataType, error) {
 
-	var result string = ""
-	var countryName string = "USA"
+	ConnectToDatabase()
+	var id int = 0
+	var data datatypes.CountryDataType
+
 	//Queries
 	//use db.Query for multiple rows
-	err := db.QueryRow("Select * FROM country WHERE name=%s", countryName).Scan(&result)
+	log.Println("Selecting data")
+	// Use parameter placeholder (?) to avoid formatting issues and SQL injection
+	err := db.QueryRow("SELECT * FROM Country WHERE name = ?", country).
+		Scan(&id, &data.Country, &data.GDP, &data.Population, &data.CapitolCity, &data.Continent, &data.SizeInSqMiles)
+	log.Println("Selected data")
 
 	if err != nil {
-		return "", err
+		return datatypes.CountryDataType{}, err
 	}
+	log.Printf("Queryed %s, DATA ID: %d", country, id)
 
-	log.Printf("Queryed %s, DATA: %s\n", country, result)
-
-	return result, nil
-}
-
-func AddUser() {
-
-}
-
-func AdminAddCountry() {
-
-}
-
-func AdminRemoveUser() {
-
-}
-
-func AdminAddAdmin() {
-
+	return data, nil
 }
 
 func InitializeDatabase() error {
@@ -129,9 +122,10 @@ func InitializeDatabase() error {
 	command = `CREATE TABLE IF NOT EXISTS Country (
 	id INT not NULL,
 	name VARCHAR(255) PRIMARY KEY not NULL,
-	gpd INT,
+	gdp INT,
 	population INT,
 	capitolcity VARCHAR(255),
+	continent VARCHAR(255),
 	sizeinsqmiles INT
 );`
 
