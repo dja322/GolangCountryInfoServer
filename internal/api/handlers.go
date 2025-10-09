@@ -27,7 +27,16 @@ func API_Base_Handler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	//looks through request and if country key in address gets the value, if not return empty string
 	var api_key string = query.Get("api_key")
-	var authResult datatypes.AuthResult = authentication.AuthorizeUser(api_key)
+	var authResult datatypes.AuthResult
+	authResult, err := authentication.AuthorizeUser(api_key)
+
+	//server errors
+	if err != nil {
+		log.Printf("E: Error 500 internal server error %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Error 500 internal server error"))
+		return
+	}
 
 	//check if request is from valid user and has calls remaining
 	if !authResult.ValidUser {

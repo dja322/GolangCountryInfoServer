@@ -54,7 +54,7 @@ func ConnectToDatabase() error {
 	return nil
 }
 
-func SelectFromDatabase(country string) (datatypes.CountryDataType, error) {
+func SelectFromCountryDatabase(country string) (datatypes.CountryDataType, error) {
 
 	err := ConnectToDatabase()
 	if err != nil {
@@ -75,6 +75,23 @@ func SelectFromDatabase(country string) (datatypes.CountryDataType, error) {
 	log.Printf("S: Queryed %s, DATA ID: %d", country, id)
 
 	return data, nil
+}
+
+func SelectFromUserDatabase(api_key string) (datatypes.UserDataType, error) {
+	err := ConnectToDatabase()
+	if err != nil {
+		return datatypes.UserDataType{}, err
+	}
+
+	var data datatypes.UserDataType
+
+	//Queries
+	//use db.Query for multiple rows
+	// Use parameter placeholder (?) to avoid formatting issues and SQL injection
+	err = db.QueryRow("SELECT * FROM User WHERE apikey = ?", api_key).
+		Scan(&data.ID, &data.Tokenlimit, &data.Tokenused, &data.Apikey, &data.Lastapiid, &data.Email)
+
+	return data, err
 }
 
 // Initializing function for database, server should not start if this function fails
@@ -125,11 +142,11 @@ func InitializeDatabase() error {
 	command = `CREATE TABLE IF NOT EXISTS Country (
 	id INT not NULL,
 	name VARCHAR(255) PRIMARY KEY not NULL,
-	gdp INT,
-	population INT,
-	capitolcity VARCHAR(255),
-	continent VARCHAR(255),
-	sizeinsqmiles INT
+	gdp INT not NULL,
+	population INT not NULL,
+	capitolcity VARCHAR (255) not NULL,
+	continent VARCHAR (255) not NULL,
+	sizeinsqmiles INT not NULL
 );`
 
 	_, err = db.Exec(command)
@@ -143,9 +160,8 @@ func InitializeDatabase() error {
 	tokenlimit INT not NULL,
 	tokenused INT not NULL,
 	apikey VARCHAR(255) not NULL,
-	lastapiid INT,
-	lastcall DATE,
-	email VARCHAR(255)
+	lastapiid INT not NULL,
+	email VARCHAR(255) not NULL
 );`
 
 	_, err = db.Exec(command)

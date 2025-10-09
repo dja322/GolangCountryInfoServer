@@ -4,7 +4,7 @@ type AuthResult struct {
 	ValidUser bool
 	Calls     int
 	CallLimit int
-	Username  string
+	UserID    int
 }
 
 type ResponseType struct {
@@ -19,6 +19,15 @@ type CountryDataType struct {
 	Continent     string
 	SizeInSqMiles int
 	Country       string
+}
+
+type UserDataType struct {
+	ID         int
+	Tokenlimit int
+	Tokenused  int
+	Apikey     string
+	Lastapiid  int
+	Email      string
 }
 
 type DBConfig struct {

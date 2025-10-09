@@ -23,22 +23,16 @@ func GetCountryData(country string, specs ...string) (datatypes.CountryDataType,
 
 	//get country data from database if it exists
 	log.Printf("S: Querying For country: %s", country)
-	result, err := database.SelectFromDatabase(country)
+	result, err := database.SelectFromCountryDatabase(country)
 
-	if err != nil {
-		return datatypes.CountryDataType{}, err
-	}
-
-	return datatypes.CountryDataType{
-		GDP:           result.GDP,
-		Population:    result.Population,
-		CapitolCity:   result.CapitolCity,
-		Continent:     result.Continent,
-		SizeInSqMiles: result.SizeInSqMiles,
-		Country:       result.Country,
-	}, nil
+	return result, err
 }
 
-func GetUserData() string {
-	return "data"
+func GetUserData(apikey string) (datatypes.UserDataType, error) {
+
+	//get country data from database if it exists
+	log.Printf("S: Getting data for key: %s", apikey)
+	result, err := database.SelectFromUserDatabase(apikey)
+
+	return result, err
 }
