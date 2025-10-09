@@ -1,6 +1,6 @@
 # Introduction
 
-This is a simple API code for calling to a database and receiving information on. Written in go.
+This is a simple API code for calling to a database and receiving information on countries. Written in go.
 
 ## User Endpoints
 Currently only one user endpoint at /api/
