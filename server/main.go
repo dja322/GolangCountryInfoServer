@@ -13,6 +13,13 @@ Implement authetication, low priority do after base api and database functionali
 
 */
 
+/*
+	Error log labels
+	D: User errpr
+	E: Server error
+	S: Service logs
+*/
+
 import (
 	"GolangCountryInfoServer/internal/api"
 	"GolangCountryInfoServer/internal/database"
@@ -35,7 +42,7 @@ func main() {
 	//sets global output log file for whole project
 	log.SetOutput(logFile)
 
-	log.Println("Log file Created")
+	log.Println("S: Log file Created")
 
 	//initialize database if set
 	if initDatabase {
@@ -43,24 +50,22 @@ func main() {
 		if err != nil {
 			log.Fatalf("error initializing database: %v", err)
 		}
-		log.Println("Successfully initialzed database")
+		log.Println("S: Successfully initialzed database")
 	}
 
 	//began setting up server
-	fmt.Println("Starting Server...")
-
-	//set up server logfile
+	fmt.Println("S: Starting Server...")
 
 	setHandlers() //sets the handlers for different endpoints
 
-	log.Println("API handlers set")
+	log.Println("S: API handlers set")
 
-	log.Println("Server started")
+	log.Println("S: Server started")
 	serverErr := http.ListenAndServe(":3000", nil) // Start the server
 	if serverErr != nil {
 		fmt.Println("Error starting server:", serverErr)
 	}
-	log.Println("Server terminated")
+	log.Println("S: Server terminated")
 
 }
 

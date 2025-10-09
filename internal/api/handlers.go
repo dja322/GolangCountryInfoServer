@@ -26,7 +26,6 @@ func API_Base_Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	query := r.URL.Query()
 	//looks through request and if country key in address gets the value, if not return empty string
-	//example of how requests look on other api https://apidocs.cheapshark.com/#b9b738bf-2916-2a13-e40d-d05bccdce2ba
 	var api_key string = query.Get("api_key")
 	var authResult datatypes.AuthResult = authentication.AuthorizeUser(api_key)
 
@@ -34,19 +33,17 @@ func API_Base_Handler(w http.ResponseWriter, r *http.Request) {
 	if !authResult.ValidUser {
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("Error 401 Unauthorized"))
-		log.Println("Unauthorized Access Attempt")
+		log.Println("D: Unauthorized Access Attempt")
 		return
 	} else if authResult.CallLimit <= authResult.Calls {
 		w.WriteHeader(http.StatusTooManyRequests)
 		w.Write([]byte("Error 429 Too many requests"))
-		log.Println("Call limit reached by ", api_key)
+		log.Println("D: Call limit reached by ", api_key)
 		return
 	}
 
 	//Parse user request and return response object
-	log.Println("Request made by user", authResult.Username)
-	var response datatypes.ResponseType = service.ParseRequest(r, authResult)
-	log.Println("User request processed for user", authResult.Username)
+	var response datatypes.ResponseType = service.ParseRequest(query, authResult)
 
 	//pass response code and body back
 	w.WriteHeader(response.ResponseCode)

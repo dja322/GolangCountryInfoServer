@@ -6,35 +6,41 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"net/url"
+	"strings"
 )
 
 // https://go.dev/blog/json
-func ParseRequest(r *http.Request, userInfo datatypes.AuthResult) datatypes.ResponseType {
-	//TODO: Parse requests for user that will then be sent to server.go which will actually access the database
-	query := r.URL.Query()
+func ParseRequest(query url.Values, userInfo datatypes.AuthResult) datatypes.ResponseType {
 
 	//currently only parameter read is country
 	var country string = query.Get("country")
 	if !validCountry(country) {
 		return datatypes.ResponseType{
-			ResponseData: []byte("Error 400 Bad request"),
+			ResponseData: []byte("Error 400 Bad request, not a valid country"),
 			ResponseCode: http.StatusBadRequest,
 		}
 	}
 
-	log.Println("Queryied for data from ", country)
-	var response datatypes.CountryDataType = server.GetCountryData(country)
-
-	jsonResponse, err := json.Marshal(response)
-
+	response, err := server.GetCountryData(country)
 	if err != nil {
+		log.Printf("E: Error 500 internal server error %v", err)
 		return datatypes.ResponseType{
 			ResponseData: []byte("Error 500 internal server error"),
 			ResponseCode: http.StatusInternalServerError,
 		}
 	}
 
-	log.Println("Successful request for", country)
+	jsonResponse, err := json.Marshal(response)
+
+	if err != nil {
+		log.Printf("E: Error 500 internal server error %v", err)
+		return datatypes.ResponseType{
+			ResponseData: []byte("Error 500 internal server error"),
+			ResponseCode: http.StatusInternalServerError,
+		}
+	}
+
 	return datatypes.ResponseType{
 		ResponseData: []byte(jsonResponse),
 		ResponseCode: http.StatusOK,
@@ -42,9 +48,6 @@ func ParseRequest(r *http.Request, userInfo datatypes.AuthResult) datatypes.Resp
 }
 
 func validCountry(country string) bool {
-	if country == "y" {
-		print("yes")
-		return false
-	}
-	return true
+	_, exists := datatypes.CountryMap[strings.ToLower(strings.TrimSpace(country))]
+	return exists
 }

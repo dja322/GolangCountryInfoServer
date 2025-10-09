@@ -15,12 +15,13 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-var db *sql.DB = nil //Database connection bool
+var db *sql.DB = nil //Database connection var
 var envFilePath string = "../.env"
 
-func ConnectToDatabase() {
+func ConnectToDatabase() error {
+	//if db not nil then db connection already established
 	if db != nil {
-		return
+		return nil
 	}
 
 	var err error
@@ -37,43 +38,46 @@ func ConnectToDatabase() {
 
 	var dataDrive string = "mysql"
 
-	log.Println("Initializing database")
-	// log.Println(cfg.FormatDSN()) //for credentials debug
-
 	db, err = sql.Open(dataDrive, cfg.FormatDSN())
 	if err != nil {
-		log.Fatal("Error connecting to mysql\n")
+		log.Printf("E: Error connecting to mysql: %v", err)
+		return err
 	}
 
 	// Test the connection
 	err = db.Ping()
 	if err != nil {
-		log.Fatalf("Error connecting to the database: %v", err)
+		log.Printf("E: Error connecting to the database: %v", err)
+		return err
 	}
+
+	return nil
 }
 
 func SelectFromDatabase(country string) (datatypes.CountryDataType, error) {
 
-	ConnectToDatabase()
+	err := ConnectToDatabase()
+	if err != nil {
+		return datatypes.CountryDataType{}, err
+	}
 	var id int = 0
 	var data datatypes.CountryDataType
 
 	//Queries
 	//use db.Query for multiple rows
-	log.Println("Selecting data")
 	// Use parameter placeholder (?) to avoid formatting issues and SQL injection
-	err := db.QueryRow("SELECT * FROM Country WHERE name = ?", country).
+	err = db.QueryRow("SELECT * FROM Country WHERE name = ?", country).
 		Scan(&id, &data.Country, &data.GDP, &data.Population, &data.CapitolCity, &data.Continent, &data.SizeInSqMiles)
-	log.Println("Selected data")
 
 	if err != nil {
 		return datatypes.CountryDataType{}, err
 	}
-	log.Printf("Queryed %s, DATA ID: %d", country, id)
+	log.Printf("S: Queryed %s, DATA ID: %d", country, id)
 
 	return data, nil
 }
 
+// Initializing function for database, server should not start if this function fails
 func InitializeDatabase() error {
 	var db *sql.DB //Database connection bool
 	var err error
@@ -90,8 +94,7 @@ func InitializeDatabase() error {
 
 	var dataDrive string = "mysql"
 
-	log.Println("Initializing database")
-	// log.Println(cfg.FormatDSN()) //for credentials debug
+	log.Println("S: Initializing database with: ", cfg.FormatDSN()) //for credentials debug
 
 	db, err = sql.Open(dataDrive, cfg.FormatDSN())
 	if err != nil {
@@ -118,7 +121,7 @@ func InitializeDatabase() error {
 		log.Fatalf("Error Using the database: %v", err)
 	}
 
-	//TODO: Set up tables for database
+	//Set up tables for database
 	command = `CREATE TABLE IF NOT EXISTS Country (
 	id INT not NULL,
 	name VARCHAR(255) PRIMARY KEY not NULL,
@@ -134,7 +137,7 @@ func InitializeDatabase() error {
 		log.Fatalf("Error creating Country table %v\n", err)
 	}
 
-	//TODO: Set up tables for database
+	//Set up tables for database
 	command = `CREATE TABLE IF NOT EXISTS User (
 	id INT PRIMARY KEY not NULL,
 	tokenlimit INT not NULL,
@@ -150,7 +153,7 @@ func InitializeDatabase() error {
 		log.Fatalf("Error creating User table %v\n", err)
 	}
 
-	//TODO: Set up tables for database
+	//Set up tables for database
 	command = `CREATE TABLE IF NOT EXISTS Admin (
 	id INT PRIMARY KEY not NULL,
 	password VARCHAR(255),
@@ -163,18 +166,21 @@ func InitializeDatabase() error {
 		log.Fatalf("Error creating Admin table %v\n", err)
 	}
 
-	log.Println("Successfully initialized database")
-
 	return nil
 }
 
+//TODO Make function to verify database is set up properly when starting server but not remaking database
+// , eg ensuring tables have correct fields and data is filled
+//func VerifyDatabase
+
+// Function to retrieve environment variables
 func getENV(filepath string) datatypes.DBConfig {
 	var config datatypes.DBConfig
 
 	//get environment file
 	file, err := os.Open(filepath)
 	if err != nil {
-		log.Println("Error opening file:", err)
+		log.Println("E: Error opening file:", err)
 		return config
 	}
 	defer file.Close()
@@ -223,7 +229,7 @@ func getENV(filepath string) datatypes.DBConfig {
 
 	// Check for errors during scanning
 	if err := scanner.Err(); err != nil {
-		log.Println("Error reading file:", err)
+		log.Println("E: Error reading file:", err)
 	}
 
 	return config

@@ -17,26 +17,26 @@ import (
 
 */
 
-func GetCountryData(country string, specs ...string) datatypes.CountryDataType {
+func GetCountryData(country string, specs ...string) (datatypes.CountryDataType, error) {
 	//TODO: Access database and get data for specific country
 	//TODO: call database functions to get data
 
+	//get country data from database if it exists
+	log.Printf("S: Querying For country: %s", country)
 	result, err := database.SelectFromDatabase(country)
 
 	if err != nil {
-		log.Printf("Error Selecting data: %v\n", err)
+		return datatypes.CountryDataType{}, err
 	}
-
-	log.Println(result)
 
 	return datatypes.CountryDataType{
-		GDP:           100000,
-		Population:    1000000,
-		CapitolCity:   "Test City",
-		Continent:     "Test Continent",
-		SizeInSqMiles: 10000,
-		Country:       country,
-	}
+		GDP:           result.GDP,
+		Population:    result.Population,
+		CapitolCity:   result.CapitolCity,
+		Continent:     result.Continent,
+		SizeInSqMiles: result.SizeInSqMiles,
+		Country:       result.Country,
+	}, nil
 }
 
 func GetUserData() string {
