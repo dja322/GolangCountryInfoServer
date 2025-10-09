@@ -1,23 +1,16 @@
 package main
 
-//encrypting salting for user security
-//https://en.wikipedia.org/wiki/Salt_%28cryptography%29#Since_the_1980s
-
 /*
 TODOLIST:
 
-Implement database access and functionality
-Implement base api request through server, high priority
 Add additional request parameters for users, whenever priority
-Implement authetication, low priority do after base api and database functionality works
+Add docker containerization
+Add hashing/salting
+	//encrypting salting for user security
+	//https://en.wikipedia.org/wiki/Salt_%28cryptography%29#Since_the_1980s
+	// TODO: Implement authorization hash and salt with SHA256 encryption
+	// eventually when user is registering
 
-*/
-
-/*
-	Error log labels
-	D: User errpr
-	E: Server error
-	S: Service logs
 */
 
 import (
@@ -35,14 +28,14 @@ const initDatabase bool = true
 func main() {
 	logFile, logErr := os.OpenFile(logFileStr, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if logErr != nil {
-		log.Fatalf("error opening file: %v", logErr)
+		log.Fatalf("ERROR: error opening file: %v", logErr)
 	}
 	defer logFile.Close()
 
 	//sets global output log file for whole project
 	log.SetOutput(logFile)
 
-	log.Println("S: Log file Created")
+	log.Println("INFO: Log file Created")
 
 	//initialize database if set
 	if initDatabase {
@@ -50,22 +43,23 @@ func main() {
 		if err != nil {
 			log.Fatalf("error initializing database: %v", err)
 		}
-		log.Println("S: Successfully initialzed database")
+		log.Println("INFO: Successfully initialzed database")
 	}
 
 	//began setting up server
-	fmt.Println("S: Starting Server...")
+	fmt.Println("INFO: Starting Server...")
 
 	setHandlers() //sets the handlers for different endpoints
 
-	log.Println("S: API handlers set")
+	log.Println("INFO: API handlers set")
 
-	log.Println("S: Server started")
+	log.Println("INFO: Server started")
 	serverErr := http.ListenAndServe(":3000", nil) // Start the server
 	if serverErr != nil {
 		fmt.Println("Error starting server:", serverErr)
+		log.Printf("ERROR: Error starting server %v", serverErr)
 	}
-	log.Println("S: Server terminated")
+	log.Println("INFO: Server terminated")
 
 }
 

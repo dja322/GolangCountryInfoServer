@@ -32,7 +32,7 @@ func API_Base_Handler(w http.ResponseWriter, r *http.Request) {
 
 	//server errors
 	if err != nil {
-		log.Printf("E: Error 500 internal server error %v", err)
+		log.Printf("ERROR: Error 500 internal server error %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Error 500 internal server error"))
 		return
@@ -41,13 +41,13 @@ func API_Base_Handler(w http.ResponseWriter, r *http.Request) {
 	//check if request is from valid user and has calls remaining
 	if !authResult.ValidUser {
 		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("Error 401 Unauthorized"))
-		log.Println("D: Unauthorized Access Attempt")
+		w.Write([]byte("Error 401 Unauthorized, Invalid API_key or unknown user"))
+		log.Println("INFO: Unauthorized Access Attempt")
 		return
 	} else if authResult.CallLimit <= authResult.Calls {
 		w.WriteHeader(http.StatusTooManyRequests)
-		w.Write([]byte("Error 429 Too many requests"))
-		log.Println("D: Call limit reached by ", api_key)
+		w.Write([]byte("Error 429 Too many requests, call limit reached for API key"))
+		log.Println("INFO: Call limit reached by ", api_key)
 		return
 	}
 

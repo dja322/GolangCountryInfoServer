@@ -7,11 +7,6 @@ import (
 	"regexp"
 )
 
-/*
-	Leave authetication for now, focus on getting base API functional
-
-*/
-
 // Checks if api-key is formatted correctly then checks if api key is present or valid
 func AuthorizeUser(api_key string) (datatypes.AuthResult, error) {
 
@@ -34,8 +29,6 @@ func AuthorizeUser(api_key string) (datatypes.AuthResult, error) {
 	return authResult, err
 }
 
-// TODO: Implement authorization, this will call server.go function to actually access database credentials
-// This will use hash and salt with SHA256 encryption eventually
 func getUser(api_key string) (datatypes.AuthResult, error) {
 
 	result, err := server.GetUserData(api_key)

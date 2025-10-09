@@ -40,14 +40,14 @@ func ConnectToDatabase() error {
 
 	db, err = sql.Open(dataDrive, cfg.FormatDSN())
 	if err != nil {
-		log.Printf("E: Error connecting to mysql: %v", err)
+		log.Printf("ERROR: Error connecting to mysql: %v", err)
 		return err
 	}
 
 	// Test the connection
 	err = db.Ping()
 	if err != nil {
-		log.Printf("E: Error connecting to the database: %v", err)
+		log.Printf("ERROR: Error connecting to the database: %v", err)
 		return err
 	}
 
@@ -72,7 +72,7 @@ func SelectFromCountryDatabase(country string) (datatypes.CountryDataType, error
 	if err != nil {
 		return datatypes.CountryDataType{}, err
 	}
-	log.Printf("S: Queryed %s, DATA ID: %d", country, id)
+	log.Printf("INFO: Queryed %s, DATA ID: %d", country, id)
 
 	return data, nil
 }
@@ -111,31 +111,31 @@ func InitializeDatabase() error {
 
 	var dataDrive string = "mysql"
 
-	log.Println("S: Initializing database with: ", cfg.FormatDSN()) //for credentials debug
+	log.Println("INFO: Initializing database with: ", cfg.FormatDSN()) //for credentials debug
 
 	db, err = sql.Open(dataDrive, cfg.FormatDSN())
 	if err != nil {
-		log.Fatal("Error connecting to mysql\n")
+		log.Fatal("ERROR: Error connecting to mysql\n")
 	}
 	defer db.Close()
 
 	// Test the connection
 	err = db.Ping()
 	if err != nil {
-		log.Fatalf("Error connecting to the database: %v", err)
+		log.Fatalf("ERROR: Error connecting to the database: %v", err)
 	}
 	defer db.Close()
 
 	//execute command on database
 	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS " + config.Database + ";")
 	if err != nil {
-		log.Fatalf("Error creating database: %v", err)
+		log.Fatalf("ERROR: Error creating database: %v", err)
 	}
 
 	var command string = "USE " + config.Database + ";"
 	_, err = db.Exec(command)
 	if err != nil {
-		log.Fatalf("Error Using the database: %v", err)
+		log.Fatalf("ERROR: Error Using the database: %v", err)
 	}
 
 	//Set up tables for database
@@ -151,7 +151,7 @@ func InitializeDatabase() error {
 
 	_, err = db.Exec(command)
 	if err != nil {
-		log.Fatalf("Error creating Country table %v\n", err)
+		log.Fatalf("ERROR: Error creating Country table %v\n", err)
 	}
 
 	//Set up tables for database
@@ -166,7 +166,7 @@ func InitializeDatabase() error {
 
 	_, err = db.Exec(command)
 	if err != nil {
-		log.Fatalf("Error creating User table %v\n", err)
+		log.Fatalf("ERROR: Error creating User table %v\n", err)
 	}
 
 	//Set up tables for database
@@ -179,7 +179,7 @@ func InitializeDatabase() error {
 
 	_, err = db.Exec(command)
 	if err != nil {
-		log.Fatalf("Error creating Admin table %v\n", err)
+		log.Fatalf("ERROR: Error creating Admin table %v\n", err)
 	}
 
 	return nil
@@ -196,7 +196,7 @@ func getENV(filepath string) datatypes.DBConfig {
 	//get environment file
 	file, err := os.Open(filepath)
 	if err != nil {
-		log.Println("E: Error opening file:", err)
+		log.Println("ERROR: Error opening file:", err)
 		return config
 	}
 	defer file.Close()
@@ -245,7 +245,7 @@ func getENV(filepath string) datatypes.DBConfig {
 
 	// Check for errors during scanning
 	if err := scanner.Err(); err != nil {
-		log.Println("E: Error reading file:", err)
+		log.Println("ERROR: Error reading file:", err)
 	}
 
 	return config

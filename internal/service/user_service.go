@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-// https://go.dev/blog/json
+// Partse user request and send proper request to server
 func ParseRequest(query url.Values, userInfo datatypes.AuthResult) datatypes.ResponseType {
 
 	//currently only parameter read is country
@@ -24,7 +24,7 @@ func ParseRequest(query url.Values, userInfo datatypes.AuthResult) datatypes.Res
 
 	response, err := server.GetCountryData(country)
 	if err != nil {
-		log.Printf("E: Error 500 internal server error %v", err)
+		log.Printf("ERROR: Error 500 internal server error %v", err)
 		return datatypes.ResponseType{
 			ResponseData: []byte("Error 500 internal server error"),
 			ResponseCode: http.StatusInternalServerError,
@@ -34,7 +34,7 @@ func ParseRequest(query url.Values, userInfo datatypes.AuthResult) datatypes.Res
 	jsonResponse, err := json.Marshal(response)
 
 	if err != nil {
-		log.Printf("E: Error 500 internal server error %v", err)
+		log.Printf("ERROR: Error 500 internal server error %v", err)
 		return datatypes.ResponseType{
 			ResponseData: []byte("Error 500 internal server error"),
 			ResponseCode: http.StatusInternalServerError,
