@@ -70,4 +70,5 @@ func setHandlers() {
 
 	http.HandleFunc("/api/", api.API_Base_Handler)
 	http.HandleFunc("/admin", api.Admin_Handler)
+	http.HandleFunc("/", api.RootHandler)
 }

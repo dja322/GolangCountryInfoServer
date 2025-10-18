@@ -67,3 +67,7 @@ func API_Base_Handler(w http.ResponseWriter, r *http.Request) {
 func Admin_Handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello, Admin!")
 }
+
+func RootHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "../static/index.html")
+}
