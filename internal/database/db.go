@@ -94,6 +94,71 @@ func SelectFromUserDatabase(api_key string) (datatypes.UserDataType, error) {
 	return data, err
 }
 
+/*
+Admin functions are things that a user can request but never directly execute
+*/
+func Admin_SelectFromUserDatabase_generic(command string) (datatypes.UserDataType, error) {
+	err := ConnectToDatabase()
+	if err != nil {
+		return datatypes.UserDataType{}, err
+	}
+
+	var data datatypes.UserDataType
+	var commandFinal string = "SELECT * FROM User WHERE " + command
+
+	err = db.QueryRow(commandFinal).
+		Scan(&data.ID, &data.Tokenlimit, &data.Tokenused, &data.Apikey, &data.Lastapiid, &data.Email)
+
+	return data, err
+}
+
+func Admin_AddUser(tokenlimit int, tokenused int, apikey string, lastapiid int, email string) error {
+	err := ConnectToDatabase()
+	if err != nil {
+		return err
+	}
+
+	//execute command on database
+	_, err = db.Exec("INSERT INTO user (tokenlimit, tokenused, apikey, lastapiid, email) VALUES (?, ?, ?, ?, ?);",
+		tokenlimit, tokenused, apikey, lastapiid, email)
+	if err != nil {
+		log.Printf("ERROR: Error adding user: %v", err)
+	}
+
+	return err
+}
+
+func Admin_UpdateUser(id int, tokenlimit int, tokenused int, apikey string, lastapiid int, email string) error {
+	err := ConnectToDatabase()
+	if err != nil {
+		return err
+	}
+
+	//execute command on database
+	_, err = db.Exec("UPDATE user SET tokenlimit=?, tokenused=?, apikey=?, lastapiid=?, email=? WHERE id=?;",
+		tokenlimit, tokenused, apikey, lastapiid, email, id)
+	if err != nil {
+		log.Printf("ERROR: Error updating user: %v", err)
+	}
+
+	return err
+}
+
+func Admin_RemoveUser(id int) error {
+	err := ConnectToDatabase()
+	if err != nil {
+		return err
+	}
+
+	//execute command on database
+	_, err = db.Exec("DELETE FROM user WHERE id=?;", id)
+	if err != nil {
+		log.Printf("ERROR: Error removing user: %v", err)
+	}
+
+	return err
+}
+
 // Initializing function for database, server should not start if this function fails
 func InitializeDatabase() error {
 	var db *sql.DB //Database connection bool
@@ -140,8 +205,8 @@ func InitializeDatabase() error {
 
 	//Set up tables for database
 	command = `CREATE TABLE IF NOT EXISTS Country (
-	id INT not NULL,
-	name VARCHAR(255) PRIMARY KEY not NULL,
+	id INT AUTO_INCREMENT PRIMARY KEY not NULL,
+	name VARCHAR(255) not NULL,
 	gdp INT not NULL,
 	population INT not NULL,
 	capitolcity VARCHAR (255) not NULL,
@@ -156,7 +221,7 @@ func InitializeDatabase() error {
 
 	//Set up tables for database
 	command = `CREATE TABLE IF NOT EXISTS User (
-	id INT PRIMARY KEY not NULL,
+	id INT AUTO_INCREMENT PRIMARY KEY not NULL,
 	tokenlimit INT not NULL,
 	tokenused INT not NULL,
 	apikey VARCHAR(255) not NULL,
@@ -171,7 +236,7 @@ func InitializeDatabase() error {
 
 	//Set up tables for database
 	command = `CREATE TABLE IF NOT EXISTS Admin (
-	id INT PRIMARY KEY not NULL,
+	id INT AUTO_INCREMENT PRIMARY KEY not NULL,
 	password VARCHAR(255),
 	passkey INT,
 	email VARCHAR(255)
