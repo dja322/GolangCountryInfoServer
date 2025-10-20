@@ -17,7 +17,7 @@ Takes in *api_key* and *country* and returns a json currently formatted as such:
 ```
 
 ## Admin Endpoints
-Not yet implemented, plans to implement
+There are admin endpoints where registered admins can see users, add user, remove user, and update user
 
 ## How to run
 Install go's mysql driver

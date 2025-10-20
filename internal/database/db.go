@@ -94,6 +94,23 @@ func SelectFromUserDatabase(api_key string) (datatypes.UserDataType, error) {
 	return data, err
 }
 
+func SelectFromAdminDatabase(email string, password string, passkey string) (datatypes.AdminAuthResult, error) {
+	err := ConnectToDatabase()
+	if err != nil {
+		return datatypes.AdminAuthResult{}, err
+	}
+
+	var data datatypes.AdminAuthResult
+
+	//Queries
+	//use db.Query for multiple rows
+	// Use parameter placeholder (?) to avoid formatting issues and SQL injection
+	err = db.QueryRow("SELECT * FROM Admin WHERE email = ? AND password = ? AND passkey = ?",
+		email, password, passkey).Scan(&data.AdminID, &data.AdminEmail)
+
+	return data, err
+}
+
 /*
 Admin functions are things that a user can request but never directly execute
 */
@@ -112,51 +129,57 @@ func Admin_SelectFromUserDatabase_generic(command string) (datatypes.UserDataTyp
 	return data, err
 }
 
-func Admin_AddUser(tokenlimit int, tokenused int, apikey string, lastapiid int, email string) error {
+func Admin_AddUser(tokenlimit int, tokenused int, apikey string, lastapiid int, email string) (int, error) {
 	err := ConnectToDatabase()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	//execute command on database
-	_, err = db.Exec("INSERT INTO user (tokenlimit, tokenused, apikey, lastapiid, email) VALUES (?, ?, ?, ?, ?);",
+	result, err := db.Exec("INSERT INTO user (tokenlimit, tokenused, apikey, lastapiid, email) VALUES (?, ?, ?, ?, ?);",
 		tokenlimit, tokenused, apikey, lastapiid, email)
 	if err != nil {
 		log.Printf("ERROR: Error adding user: %v", err)
 	}
 
-	return err
+	var RowsAffected int64
+	RowsAffected, _ = result.RowsAffected()
+	return int(RowsAffected), err
 }
 
-func Admin_UpdateUser(id int, tokenlimit int, tokenused int, apikey string, lastapiid int, email string) error {
+func Admin_UpdateUser(id int, tokenlimit int, tokenused int, apikey string, lastapiid int, email string) (int, error) {
 	err := ConnectToDatabase()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	//execute command on database
-	_, err = db.Exec("UPDATE user SET tokenlimit=?, tokenused=?, apikey=?, lastapiid=?, email=? WHERE id=?;",
+	result, err := db.Exec("UPDATE user SET tokenlimit=?, tokenused=?, apikey=?, lastapiid=?, email=? WHERE id=?;",
 		tokenlimit, tokenused, apikey, lastapiid, email, id)
 	if err != nil {
 		log.Printf("ERROR: Error updating user: %v", err)
 	}
 
-	return err
+	var RowsAffected int64
+	RowsAffected, _ = result.RowsAffected()
+	return int(RowsAffected), err
 }
 
-func Admin_RemoveUser(id int) error {
+func Admin_RemoveUser(id int) (int, error) {
 	err := ConnectToDatabase()
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	//execute command on database
-	_, err = db.Exec("DELETE FROM user WHERE id=?;", id)
+	result, err := db.Exec("DELETE FROM user WHERE id=?;", id)
 	if err != nil {
 		log.Printf("ERROR: Error removing user: %v", err)
 	}
 
-	return err
+	var RowsAffected int64
+	RowsAffected, _ = result.RowsAffected()
+	return int(RowsAffected), err
 }
 
 // Initializing function for database, server should not start if this function fails

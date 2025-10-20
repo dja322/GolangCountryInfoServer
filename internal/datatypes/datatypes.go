@@ -7,6 +7,12 @@ type AuthResult struct {
 	UserID    int
 }
 
+type AdminAuthResult struct {
+	ValidAdmin bool
+	AdminID    int
+	AdminEmail string
+}
+
 type ResponseType struct {
 	ResponseData []byte
 	ResponseCode int

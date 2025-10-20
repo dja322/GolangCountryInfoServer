@@ -70,3 +70,32 @@ func validateAPIKey(api_key string) (bool, error) {
 	return matched, err
 
 }
+
+func AuthorizeAdmin(password string, passkey string, email string) (datatypes.AdminAuthResult, error) {
+	return getAdmin(password, passkey, email)
+}
+
+func getAdmin(password string, passkey string, email string) (datatypes.AdminAuthResult, error) {
+	result, err := server.GetAdminData(email, password, passkey)
+	//test for internal server error or lack of data
+	var ErrNoRows = errors.New("sql: no rows in result set")
+
+	if err == ErrNoRows {
+		var validUser bool = false
+		return datatypes.AdminAuthResult{
+			ValidAdmin: validUser,
+			AdminID:    -1,
+			AdminEmail: "",
+		}, nil
+	} else if err != nil {
+		return datatypes.AdminAuthResult{}, err
+	}
+
+	//For when admin exists
+	var validAdmin bool = true
+	return datatypes.AdminAuthResult{
+		ValidAdmin: validAdmin,
+		AdminID:    result.AdminID,
+		AdminEmail: result.AdminEmail,
+	}, nil
+}
