@@ -57,26 +57,54 @@ func ResolveAdminRequest(query url.Values, purpose string, adminInfo datatypes.A
 	switch purpose {
 	case "add_user":
 		//add user functionality
-		tokenlimit, _ := strconv.Atoi(query.Get("tokenlimit"))
-		tokenused, _ := strconv.Atoi(query.Get("tokenused"))
-		lastapiid, _ := strconv.Atoi(query.Get("lastapiid"))
-		result, err := database.Admin_AddUser(tokenlimit, tokenused, query.Get("apikey"),
-			lastapiid, query.Get("email"))
+		tokenlimit, err := strconv.Atoi(query.Get("tokenlimit"))
+		if err != nil {
+			return 0, err
+		}
+		tokenused, err := strconv.Atoi(query.Get("tokenused"))
+		if err != nil {
+			return 0, err
+		}
+		lastapiid, err := strconv.Atoi(query.Get("lastapiid"))
+		if err != nil {
+			return 0, err
+		}
+		apikey := query.Get("apikey")
+		email := query.Get("email")
+		result, err := database.Admin_AddUser(tokenlimit, tokenused, apikey,
+			lastapiid, email)
 		return result, err
 
 	case "remove_user":
 		//remove user functionality
-		userID, _ := strconv.Atoi(query.Get("userID"))
+		userID, err := strconv.Atoi(query.Get("userID"))
+		if err != nil {
+			return 0, err
+		}
 		result, err := database.Admin_RemoveUser(userID)
 		return result, err
 	case "update_user":
 		//update user functionality
-		id, _ := strconv.Atoi(query.Get("id"))
-		tokenlimit, _ := strconv.Atoi(query.Get("tokenlimit"))
-		tokenused, _ := strconv.Atoi(query.Get("tokenused"))
-		lastapiid, _ := strconv.Atoi(query.Get("lastapiid"))
-		result, err := database.Admin_UpdateUser(id, tokenlimit, tokenused, query.Get("apikey"),
-			lastapiid, query.Get("email"))
+		id, err := strconv.Atoi(query.Get("id"))
+		if err != nil {
+			return 0, err
+		}
+		tokenlimit, err := strconv.Atoi(query.Get("tokenlimit"))
+		if err != nil {
+			return 0, err
+		}
+		tokenused, err := strconv.Atoi(query.Get("tokenused"))
+		if err != nil {
+			return 0, err
+		}
+		lastapiid, err := strconv.Atoi(query.Get("lastapiid"))
+		if err != nil {
+			return 0, err
+		}
+		apikey := query.Get("apikey")
+		email := query.Get("email")
+		result, err := database.Admin_UpdateUser(id, tokenlimit, tokenused, apikey,
+			lastapiid, email)
 		return result, err
 	}
 
