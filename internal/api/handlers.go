@@ -107,5 +107,5 @@ func Admin_Handler(w http.ResponseWriter, r *http.Request) {
 
 // Serves the root landing page
 func RootHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "../static/index.html")
+	http.FileServer(http.Dir("../static")).ServeHTTP(w, r)
 }

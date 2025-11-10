@@ -24,6 +24,7 @@ import (
 
 const logFileStr string = "../Logfile_server.log"
 const initDatabase bool = true
+const port string = ":3000"
 
 func main() {
 	logFile, logErr := os.OpenFile(logFileStr, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
@@ -53,8 +54,7 @@ func main() {
 
 	log.Println("INFO: API handlers set")
 
-	log.Println("INFO: Server started")
-	serverErr := http.ListenAndServe(":3000", nil) // Start the server
+	serverErr := http.ListenAndServe(port, nil) // Start the server
 	if serverErr != nil {
 		fmt.Println("Error starting server:", serverErr)
 		log.Printf("ERROR: Error starting server %v", serverErr)
@@ -69,6 +69,6 @@ func main() {
 func setHandlers() {
 
 	http.HandleFunc("/api/", api.API_Base_Handler)
-	http.HandleFunc("/admin", api.Admin_Handler)
+	http.HandleFunc("/admin/", api.Admin_Handler)
 	http.HandleFunc("/", api.RootHandler)
 }
