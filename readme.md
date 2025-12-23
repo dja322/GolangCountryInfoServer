@@ -20,13 +20,11 @@ Takes in *api_key* and *country* and returns a json currently formatted as such:
 There are admin endpoints where registered admins can see users, add user, remove user, and update user
 
 ## How to run
-Install go's mysql driver
-``github.com/go-sql-driver/mysql``
+This project uses docker to run builds
+Run docker compose up --build
 
-
-go run main.go
-or
-go build main.go and run exectuable
+this is start the containers on your machine, api calls can be made after 
+it is finished initializing
 
 ## Current plans
 Updates for this project

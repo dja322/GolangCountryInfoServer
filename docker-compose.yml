@@ -1,0 +1,42 @@
+
+services:
+  api:
+    build: .
+    container_name: go-api
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: countryuser
+      DB_PASSWORD: countrypassword
+      DB_NAME: country_db
+    depends_on:
+      - db
+    healthcheck:
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  db:
+    image: mysql:8.4
+    container_name: country_db
+    environment:
+      - MYSQL_ROOT_PASSWORD=countrypassword
+      - MYSQL_DATABASE=country_db
+      - MYSQL_USER=countryuser
+      - MYSQL_PASSWORD=countrypassword
+      - MYSQL_SSL_DISABLED=true
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      # Map host port 3307 to container 3306 to avoid host 3306 conflicts
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  db-data:

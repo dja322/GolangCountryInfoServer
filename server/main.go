@@ -22,7 +22,7 @@ import (
 	"os"
 )
 
-const logFileStr string = "../Logfile_server.log"
+const logFileStr string = "Logfile_server.log"
 const initDatabase bool = true
 const port string = ":3000"
 

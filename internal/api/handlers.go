@@ -107,5 +107,6 @@ func Admin_Handler(w http.ResponseWriter, r *http.Request) {
 
 // Serves the root landing page
 func RootHandler(w http.ResponseWriter, r *http.Request) {
-	http.FileServer(http.Dir("../static")).ServeHTTP(w, r)
+	// Serve files from the container's /app/static directory (project copied to /app)
+	http.FileServer(http.Dir("static")).ServeHTTP(w, r)
 }
